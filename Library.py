@@ -1,3 +1,5 @@
+#NOTE:: Assignment-2:: Functions from Line 607
+
 import random
 import numpy as np
 import math
@@ -564,18 +566,20 @@ def Jackknife(a):
     return y_mean_jk, sigma_jk_sq, sigma
 
 from scipy import linalg
-def poly_fit(x, y, Dy, order=1):
-    # takes in x y and Dy array and order of poly to be fitted.
-    # make vector Y -> make matrix X -> take invers matrix X -> multiply X with Y
-    X = [];Y = [];B = []
+def polyfit(x, y, sigma, order=1):
+    # takes in x y and sigma array and order of polynomial to be fitted.
+    # make vector Y -> make matrix X -> take inverse matrix X -> multiply X with Y
+    X = []
+    Y = []
+    B = []
     para = order + 1  # no of parameters
-    ar_x = np.array(x)
-    ar_y = np.array(y)
-    ar_Dy = np.array(Dy)
+    arX = np.array(x)
+    arY = np.array(y)
+    Sig = np.array(sigma)
     for i in range(para):
         X.append([])
         for j in range(para):
-            X[i].append(np.sum(((ar_x ** (i + j))) / (ar_Dy ** 2)))
+            X[i].append(np.sum(((arX ** (i + j))) / (Sig ** 2)))
 
     for i in range(para):
         B.append([])
@@ -586,11 +590,11 @@ def poly_fit(x, y, Dy, order=1):
                 B[i].append(0)
     for i in range(para):
         Y.append([])
-        Y[i].append(np.sum(np.multiply((ar_x ** i), ar_y) / ar_Dy ** 2))
+        Y[i].append(np.sum(np.multiply((arX ** i), arY) / Sig ** 2))
 
     inv = linalg.inv(np.array(X))
-    parameter = np.dot(inv, Y)
-    return parameter
+    parameters = np.dot(inv, Y)
+    return parameters
 
 import matplotlib.pyplot as plt
 
@@ -599,3 +603,23 @@ def plot(x,y,sigma):
     x = np.linspace(0,100,1000)
     plt.plot(x, a + b*x)
     plt.show()
+
+def LCG(seed, num, a, c, m):
+    # seed - starting number
+    # num - Total number of random numbers
+    # a,c,m - parameters
+    rand = np.zeros(num)
+    rand[0] = seed
+    for l in range(1, num):
+        rand[l] = (a*rand[l-1] + c) % m
+    return rand/m
+#print(LCG(3,100, 356, .9, 867))
+def MonteCarlo(f, N):
+    # f - function
+    # N - number of points for integration
+    x = LCG(0.4,N,487,2,18745)
+    total = 0
+    for i in range(0,N):
+        total += f(x[i])
+    total = total/N
+    return total
